@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 const app = express();
-const port = 3001;
+const port = 3001; // TODO: need to update this with env variables for deployment
 
 app.use(express.json());
 
@@ -34,6 +34,29 @@ app.post('/api/tasks', async (req, res) => {
   } catch (error) {
     console.error('Error creating task:', error);
     res.status(500).json({ error: 'Failed to create task' });
+  }
+});
+
+// PUT /api/tasks/:id - Update a task
+app.put('/api/tasks/:id', async (req, res) => {
+  const { id } = req.params;
+  const { title, description, status, order, dueDate, parentId } = req.body;
+  try {
+    const updatedTask = await prisma.task.update({
+      where: { id: Number(id) },
+      data: {
+        title,
+        description,
+        status,
+        order,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        parentId: parentId || null,
+      },
+    });
+    res.json(updatedTask);
+  } catch (error) {
+    console.error('Error updating task:', error);
+    res.status(500).json({ error: 'Failed to update task' });
   }
 });
 

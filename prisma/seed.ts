@@ -1,4 +1,4 @@
-import { PrismaClient, Priority } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -7,19 +7,16 @@ async function main() {
     {
       title: 'Task 1',
       description: 'Task 1 with high priority',
-      priority: Priority.HIGH,
       completed: false,
     },
     {
       title: 'Task 2',
       description: 'Task 2 with medium priority',
-      priority: Priority.MEDIUM,
       completed: false,
     },
     {
       title: 'Task 3',
       description: 'Task 3 with low priority',
-      priority: Priority.LOW,
       completed: false,
     },
   ]

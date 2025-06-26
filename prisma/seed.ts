@@ -8,16 +8,19 @@ async function main() {
       title: 'Task 1',
       description: 'To-do task',
       status: 'TODO',
+      order: 1,
     },
     {
       title: 'Task 2',
       description: 'In progress task',
       status: 'IN_PROGRESS',
+      order: 2,
     },
     {
       title: 'Task 3',
       description: 'Completed task',
       status: 'COMPLETED',
+      order: 3,
     },
   ]
 

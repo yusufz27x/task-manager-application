@@ -1,5 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
+// TODO: Needs major refactoring, current implementation just a placeholder
+
 interface Task {
   id: number
   title: string

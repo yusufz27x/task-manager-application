@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, TaskStatus } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -7,19 +7,19 @@ async function main() {
     {
       title: 'Task 1',
       description: 'To-do task',
-      status: 'TODO',
+      status: TaskStatus.TODO,
       order: 1,
     },
     {
       title: 'Task 2',
       description: 'In progress task',
-      status: 'IN_PROGRESS',
+      status: TaskStatus.IN_PROGRESS,
       order: 2,
     },
     {
       title: 'Task 3',
       description: 'Completed task',
-      status: 'COMPLETED',
+      status: TaskStatus.COMPLETED,
       order: 3,
     },
   ]

@@ -6,18 +6,18 @@ async function main() {
   const tasks = [
     {
       title: 'Task 1',
-      description: 'Task 1 with high priority',
-      completed: false,
+      description: 'To-do task',
+      status: 'TODO',
     },
     {
       title: 'Task 2',
-      description: 'Task 2 with medium priority',
-      completed: false,
+      description: 'In progress task',
+      status: 'IN_PROGRESS',
     },
     {
       title: 'Task 3',
-      description: 'Task 3 with low priority',
-      completed: false,
+      description: 'Completed task',
+      status: 'COMPLETED',
     },
   ]
 

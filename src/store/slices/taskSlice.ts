@@ -43,12 +43,6 @@ const taskSlice = createSlice({
     deleteTask: (state, action: PayloadAction<number>) => {
       state.tasks = state.tasks.filter(task => task.id !== action.payload)
     },
-    toggleTask: (state, action: PayloadAction<number>) => {
-      const task = state.tasks.find(task => task.id === action.payload)
-      if (task) {
-        task.completed = !task.completed
-      }
-    },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload
     },
@@ -58,5 +52,5 @@ const taskSlice = createSlice({
   },
 })
 
-export const { addTask, updateTask, deleteTask, toggleTask, setLoading, setError } = taskSlice.actions
+export const { addTask, updateTask, deleteTask, setLoading, setError } = taskSlice.actions
 export default taskSlice.reducer

@@ -5,12 +5,14 @@ export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
 interface Task {
   id: number
   title: string
-  description?: string
-  completed: boolean
-  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+  description: string | null
+  status: TaskStatus
+  order: number
   createdAt: string
   updatedAt: string
-  dueDate?: string
+  dueDate: string | null
+  parentId: number | null
+  subtasks: Task[]
 }
 
 interface TaskState {

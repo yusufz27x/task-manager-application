@@ -1,6 +1,9 @@
 import React from 'react'
-import { MoreHorizontal, AlertTriangle, AlertCircle } from "lucide-react"
-import type { Task } from '../store/slices/taskSlice'
+import { MoreHorizontal, AlertTriangle, AlertCircle, GripVertical } from "lucide-react"
+import { useSortable } from '@dnd-kit/sortable'
+import { useDroppable } from '@dnd-kit/core'
+import { CSS } from '@dnd-kit/utilities'
+import type { Task, TaskStatus } from '../store/slices/taskSlice'
 import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
 import {
@@ -24,9 +27,92 @@ interface TaskCardProps {
     onDelete: (taskId: number) => void
     isSubtask?: boolean
     searchQuery?: string
+    isDragDisabled?: boolean
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, isSubtask = false, searchQuery = '' }) => {
+interface DroppableColumnProps {
+    status: TaskStatus
+    tasks: Task[]
+    onEdit: (task: Task) => void
+    onDelete: (taskId: number) => void
+    searchQuery: string
+    children?: React.ReactNode
+}
+
+export const DroppableColumn: React.FC<DroppableColumnProps> = ({
+    status,
+    tasks,
+    onEdit,
+    onDelete,
+    searchQuery
+}) => {
+    const { setNodeRef, isOver } = useDroppable({
+        id: status,
+        data: {
+            type: 'column',
+            status,
+        },
+    });
+
+    return (
+        <div className="bg-muted rounded-lg p-4">
+            <h2 className="text-xl font-semibold mb-4 capitalize">
+                {status.replace('_', ' ').toLowerCase()}
+            </h2>
+            <div
+                ref={setNodeRef}
+                className={`space-y-4 min-h-[200px] ${isOver ? 'bg-primary/5 border-2 border-dashed border-primary rounded-lg' : ''}`}
+            >
+                {tasks.length > 0 ? (
+                    tasks.map((task) => (
+                        <TaskCard
+                            key={task.id}
+                            task={task}
+                            onEdit={onEdit}
+                            onDelete={onDelete}
+                            searchQuery={searchQuery}
+                        />
+                    ))
+                ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                        <p className="text-sm">No tasks found</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const TaskCard: React.FC<TaskCardProps> = ({ 
+    task, 
+    onEdit, 
+    onDelete, 
+    isSubtask = false, 
+    searchQuery = '', 
+    isDragDisabled = false 
+}) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({
+        id: task.id.toString(),
+        disabled: isDragDisabled || isSubtask, // Disable dragging for subtasks
+        data: {
+            type: 'task',
+            task,
+        },
+    });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+    };
+
     const lowerCaseQuery = searchQuery.toLowerCase();
     const selfMatches = lowerCaseQuery && (
         task.title.toLowerCase().includes(lowerCaseQuery) ||
@@ -36,11 +122,26 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, isSubtask =
     const shouldHighlight = isSubtask && selfMatches;
 
     return (
-        <Card className={`${isSubtask ? "bg-muted/50 shadow-sm" : ""} ${shouldHighlight ? "animate-highlight" : ""}`}>
+        <Card 
+            ref={setNodeRef}
+            style={style}
+            className={`${isSubtask ? "bg-muted/50 shadow-sm" : ""} ${shouldHighlight ? "animate-highlight" : ""} ${isDragging ? "shadow-lg ring-2 ring-primary" : ""} cursor-default`}
+        >
             <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 pb-2">
-                <div className="space-y-1">
-                    <CardTitle className={isSubtask ? "text-base font-medium" : ""}>{task.title}</CardTitle>
-                    {task.description && <CardDescription>{task.description}</CardDescription>}
+                <div className="flex items-start gap-2 flex-1">
+                    {!isSubtask && !isDragDisabled && (
+                        <div 
+                            {...attributes} 
+                            {...listeners}
+                            className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
+                        >
+                            <GripVertical className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                    )}
+                    <div className="space-y-1 flex-1">
+                        <CardTitle className={isSubtask ? "text-base font-medium" : ""}>{task.title}</CardTitle>
+                        {task.description && <CardDescription>{task.description}</CardDescription>}
+                    </div>
                 </div>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -58,7 +159,15 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, isSubtask =
                 <CardContent>
                     <div className="space-y-4 pl-4 border-l-2">
                         {task.subtasks.map(subtask => (
-                            <TaskCard key={subtask.id} task={subtask} onEdit={onEdit} onDelete={onDelete} isSubtask searchQuery={searchQuery} />
+                            <TaskCard 
+                                key={subtask.id} 
+                                task={subtask} 
+                                onEdit={onEdit} 
+                                onDelete={onDelete} 
+                                isSubtask 
+                                searchQuery={searchQuery}
+                                isDragDisabled={true}
+                            />
                         ))}
                     </div>
                 </CardContent>

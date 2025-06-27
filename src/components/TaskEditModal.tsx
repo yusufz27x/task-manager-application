@@ -179,7 +179,6 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ isOpen, onClose, onTaskUp
                                         setDueDate(date);
                                         setCalendarOpen(false);
                                     }}
-                                    initialFocus
                                 />
                             </PopoverContent>
                         </Popover>

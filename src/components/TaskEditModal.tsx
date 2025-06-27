@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { Button } from './ui/button';
 import { useAppDispatch, useAppSelector } from '../store';
 import { setError, updateTask } from '../store/slices/taskSlice';
+import toast from 'react-hot-toast';
 
 import {
     Dialog,
@@ -66,7 +67,9 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ isOpen, onClose, onTaskUp
         dispatch(setError(null));
 
         if (!title || !task) {
-            dispatch(setError('Title is required.'));
+            const errorMessage = 'Title is required.';
+            dispatch(setError(errorMessage));
+            toast.error(errorMessage);
             return;
         }
 
@@ -92,10 +95,13 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ isOpen, onClose, onTaskUp
 
             const updatedTask = await response.json();
             dispatch(updateTask({ id: task.id, updates: updatedTask }));
+            toast.success(`Task "${title}" updated successfully!`);
             onTaskUpdated();
             handleClose();
         } catch (e: unknown) {
-            dispatch(setError(e instanceof Error ? e.message : String(e)));
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            dispatch(setError(errorMessage));
+            toast.error(`Failed to update task: ${errorMessage}`);
         }
     };
 

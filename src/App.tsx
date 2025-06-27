@@ -9,6 +9,35 @@ import { Input } from './components/ui/input';
 
 const statusColumns: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
 
+const filterTasksWithSubtasks = (allTasks: Task[], query: string): Task[] => {
+  const lowerCaseQuery = query.toLowerCase();
+
+  if (!lowerCaseQuery) {
+    return allTasks;
+  }
+
+  const taskMatchesQuery = (task: Task): boolean => {
+    return (
+      task.title.toLowerCase().includes(lowerCaseQuery) ||
+      (task.description?.toLowerCase().includes(lowerCaseQuery) ?? false)
+    );
+  };
+
+  const filter = (tasks: Task[]): Task[] => {
+    return tasks
+      .map(task => {
+        const filteredSubtasks = task.subtasks ? filter(task.subtasks) : [];
+        if (taskMatchesQuery(task) || filteredSubtasks.length > 0) {
+          return { ...task, subtasks: filteredSubtasks };
+        }
+        return null;
+      })
+      .filter((task): task is Task => task !== null);
+  };
+
+  return filter(allTasks);
+};
+
 function App() {
   const dispatch = useAppDispatch();
   const { tasks, loading, error } = useAppSelector((state) => state.tasks);
@@ -83,12 +112,7 @@ function App() {
     }
   };
 
-  const filteredTasks = tasks.filter(
-    (task) =>
-      task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (task.description &&
-        task.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredTasks = filterTasksWithSubtasks(tasks, searchQuery);
 
   const tasksByStatus = filteredTasks.reduce((acc, task) => {
     if (!task.parentId) { // Only group parent tasks into columns

@@ -150,6 +150,7 @@ function App() {
                     task={task}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    isSearchResult={searchQuery.length > 0}
                   />
                 ))}
               </div>

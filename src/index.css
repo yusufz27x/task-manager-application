@@ -114,7 +114,23 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  @keyframes highlight {
+    from {
+      background-color: oklch(from var(--primary) l c h / 0.2);
+    }
+    to {
+      background-color: transparent;
+    }
+  }
+
+  .animate-highlight {
+    animation: highlight 1.5s ease-out;
   }
 }

@@ -46,6 +46,52 @@ const taskSlice = createSlice({
     deleteTask: (state, action: PayloadAction<number>) => {
       state.tasks = state.tasks.filter(task => task.id !== action.payload)
     },
+    reorderTasks: (state, action: PayloadAction<{ sourceId: number; destinationId: number; sourceStatus: TaskStatus; destinationStatus: TaskStatus }>) => {
+      const { sourceId, destinationId, sourceStatus, destinationStatus } = action.payload;
+      
+      const taskIndex = state.tasks.findIndex(task => task.id === sourceId);
+      if (taskIndex === -1) return;
+      
+      const task = state.tasks[taskIndex];
+      
+      if (sourceStatus !== destinationStatus) {
+        task.status = destinationStatus;
+      }
+      
+      const destinationTasks = state.tasks.filter(t => 
+        t.status === destinationStatus && !t.parentId
+      ).sort((a, b) => a.order - b.order);
+      
+      const filteredDestinationTasks = destinationTasks.filter(t => t.id !== sourceId);
+      
+      const destTaskIndex = filteredDestinationTasks.findIndex(t => t.id === destinationId);
+      
+      if (destTaskIndex >= 0) {
+        filteredDestinationTasks.splice(destTaskIndex, 0, task);
+      } else {
+        filteredDestinationTasks.push(task);
+      }
+      
+      filteredDestinationTasks.forEach((t, index) => {
+        const taskToUpdate = state.tasks.find(stateTask => stateTask.id === t.id);
+        if (taskToUpdate) {
+          taskToUpdate.order = index;
+        }
+      });
+    },
+    bulkUpdateTasks: (state, action: PayloadAction<Array<{ id: number; status?: TaskStatus; order?: number }>>) => {
+      action.payload.forEach(update => {
+        const taskIndex = state.tasks.findIndex(task => task.id === update.id);
+        if (taskIndex !== -1) {
+          if (update.status) {
+            state.tasks[taskIndex].status = update.status;
+          }
+          if (update.order !== undefined) {
+            state.tasks[taskIndex].order = update.order;
+          }
+        }
+      });
+    },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload
     },
@@ -55,5 +101,5 @@ const taskSlice = createSlice({
   },
 })
 
-export const { setTasks, addTask, updateTask, deleteTask, setLoading, setError } = taskSlice.actions
+export const { setTasks, addTask, updateTask, deleteTask, reorderTasks, bulkUpdateTasks, setLoading, setError } = taskSlice.actions
 export default taskSlice.reducer

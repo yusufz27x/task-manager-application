@@ -4,7 +4,7 @@ import { deleteTask, setTasks, setLoading, setError } from './store/slices/taskS
 import type { Task, TaskStatus } from './store/slices/taskSlice';
 import TaskCard from './components/TaskCard';
 import { Button } from './components/ui/button';
-import { MoonIcon, SunIcon } from 'lucide-react';
+import { MoonIcon, SunIcon, SearchIcon } from 'lucide-react';
 import { Input } from './components/ui/input';
 
 const statusColumns: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
@@ -126,11 +126,13 @@ function App() {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Task Manager</h1>
-        <div className="max-w-sm">
+        <div className="relative max-w-sm">
+          <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search by title or description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
           />
         </div>
       </div>

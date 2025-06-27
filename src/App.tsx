@@ -426,6 +426,13 @@ function App() {
         </div>
         <Toaster 
           position="bottom-center"
+          containerStyle={{
+            position: 'fixed',
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9999,
+          }}
           toastOptions={{
             className: '',
             duration: 4000,
@@ -434,12 +441,12 @@ function App() {
               color: 'hsl(var(--foreground))',
               border: '2px solid hsl(var(--border))',
               borderRadius: '8px',
-              padding: '16px 20px',
+              padding: '12px 16px',
               fontSize: '14px',
               fontWeight: '500',
               boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-              minWidth: '300px',
-              maxWidth: '500px',
+              minWidth: '280px',
+              maxWidth: '90vw',
             },
             success: {
               style: {

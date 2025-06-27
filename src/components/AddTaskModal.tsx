@@ -36,6 +36,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onTaskAdde
     const [description, setDescription] = useState('');
     const [status, setStatus] = useState<TaskStatus>('TODO');
     const [dueDate, setDueDate] = useState<Date | undefined>();
+    const [isCalendarOpen, setCalendarOpen] = useState(false);
 
     const handleClose = () => {
         setTitle('');
@@ -139,7 +140,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onTaskAdde
                         <Label htmlFor="due-date" className="text-right">
                             Due Date
                         </Label>
-                        <Popover>
+                        <Popover open={isCalendarOpen} onOpenChange={setCalendarOpen}>
                             <PopoverTrigger asChild>
                                 <Button
                                     variant={"outline"}
@@ -153,7 +154,10 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onTaskAdde
                                 <Calendar
                                     mode="single"
                                     selected={dueDate}
-                                    onSelect={setDueDate}
+                                    onSelect={(date) => {
+                                        setDueDate(date);
+                                        setCalendarOpen(false);
+                                    }}
                                     initialFocus
                                 />
                             </PopoverContent>

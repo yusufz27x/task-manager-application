@@ -6,6 +6,7 @@ import TaskCard from './components/TaskCard';
 import { Button } from './components/ui/button';
 import { MoonIcon, SunIcon, SearchIcon, PlusIcon } from 'lucide-react';
 import { Input } from './components/ui/input';
+import { LoadingSpinner } from './components/ui/spinner';
 import AddTaskModal from './components/AddTaskModal';
 import TaskEditModal from './components/TaskEditModal';
 import { Toaster } from 'react-hot-toast';
@@ -147,7 +148,7 @@ function App() {
           </Button>
         </div>
       </div>
-      {loading && <p>Loading...</p>}
+      {loading && <LoadingSpinner message="Fetching tasks..." />}
       {error && <p className="text-red-500">Error: {error}</p>}
       {!loading && !error && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">

@@ -23,12 +23,20 @@ interface TaskCardProps {
   onEdit: (task: Task) => void
   onDelete: (taskId: number) => void
   isSubtask?: boolean
-  isSearchResult?: boolean
+  searchQuery?: string
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, isSubtask = false, isSearchResult = false }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, isSubtask = false, searchQuery = '' }) => {
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    const selfMatches = lowerCaseQuery && (
+        task.title.toLowerCase().includes(lowerCaseQuery) ||
+        (task.description?.toLowerCase().includes(lowerCaseQuery) ?? false)
+    );
+
+    const shouldHighlight = isSubtask && selfMatches;
+
     return (
-        <Card className={`${isSubtask ? "bg-muted/50 shadow-sm" : ""} ${isSearchResult ? "animate-highlight" : ""}`}>
+        <Card className={`${isSubtask ? "bg-muted/50 shadow-sm" : ""} ${shouldHighlight ? "animate-highlight" : ""}`}>
             <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 pb-2">
                 <div className="space-y-1">
                     <CardTitle className={isSubtask ? "text-base font-medium" : ""}>{task.title}</CardTitle>
@@ -50,7 +58,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, isSubtask =
                 <CardContent>
                     <div className="space-y-4 pl-4 border-l-2">
                         {task.subtasks.map(subtask => (
-                            <TaskCard key={subtask.id} task={subtask} onEdit={onEdit} onDelete={onDelete} isSubtask isSearchResult={isSearchResult} />
+                            <TaskCard key={subtask.id} task={subtask} onEdit={onEdit} onDelete={onDelete} isSubtask searchQuery={searchQuery} />
                         ))}
                     </div>
                 </CardContent>

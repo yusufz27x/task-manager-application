@@ -74,6 +74,49 @@ app.delete('/api/tasks/:id', async (req, res) => {
   }
 });
 
+// PUT /api/tasks/bulk-update - Bulk update tasks (for drag and drop)
+app.put('/api/tasks/bulk-update', async (req, res) => {
+  const { updates } = req.body;
+  console.log('Received bulk update request:', JSON.stringify(req.body, null, 2));
+  
+  if (!updates || !Array.isArray(updates)) {
+    console.error('Invalid updates format:', updates);
+    res.status(400).json({ error: 'Invalid updates format' });
+    return;
+  }
+
+  try {
+    const updatedTasks: any[] = [];
+    
+    for (const update of updates) {
+      console.log('Processing update:', update);
+      
+      const updateData: any = {};
+      if (update.status) {
+        updateData.status = update.status;
+      }
+      if (update.order !== undefined) {
+        updateData.order = update.order;
+      }
+      
+      console.log('Update data:', updateData);
+      
+      const updatedTask = await prisma.task.update({
+        where: { id: update.id },
+        data: updateData,
+      });
+      
+      updatedTasks.push(updatedTask);
+    }
+    
+    console.log('Successfully updated tasks:', updatedTasks.length);
+    res.json(updatedTasks);
+  } catch (error) {
+    console.error('Error bulk updating tasks:', error);
+    res.status(500).json({ error: 'Failed to bulk update tasks' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`API server listening at http://localhost:${port}`);
 });

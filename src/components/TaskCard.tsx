@@ -1,5 +1,5 @@
 import React from 'react'
-import { MoreHorizontal } from "lucide-react"
+import { MoreHorizontal, AlertTriangle, AlertCircle } from "lucide-react"
 import type { Task } from '../store/slices/taskSlice'
 import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
@@ -56,7 +56,33 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, isSubtask =
             )}
             <CardFooter>
                 <div className="flex justify-between w-full items-center text-sm text-muted-foreground">
-                    {task.dueDate && <p>Due: {new Date(task.dueDate).toLocaleDateString()}</p>}
+                    {task.dueDate ? (() => {
+                        const due = new Date(task.dueDate);
+                        const today = new Date();
+                        due.setHours(0, 0, 0, 0);
+                        today.setHours(0, 0, 0, 0);
+
+                        const diffTime = due.getTime() - today.getTime();
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        let color = "";
+                        let Icon = null;
+
+                        if (diffDays < 0) {
+                            color = "text-orange-500";
+                            Icon = <AlertTriangle className="h-4 w-4" />;
+                        } else if (diffDays <= 3) {
+                            color = "text-red-500";
+                            Icon = <AlertCircle className="h-4 w-4" />;
+                        }
+
+                        return (
+                            <div className={`flex items-center gap-1 ${color}`}>
+                                {Icon}
+                                <p>Due: {new Date(task.dueDate).toLocaleDateString()}</p>
+                            </div>
+                        );
+                    })() : <div />}
                     <Badge variant="outline" className="capitalize">{task.status.replace(/_/g, ' ').toLowerCase()}</Badge>
                 </div>
             </CardFooter>

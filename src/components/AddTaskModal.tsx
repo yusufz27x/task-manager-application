@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { Button } from './ui/button';
 import { useAppDispatch, useAppSelector } from '../store';
 import { setError } from '../store/slices/taskSlice';
+import toast from 'react-hot-toast';
 
 import {
     Dialog,
@@ -54,7 +55,9 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onTaskAdde
         dispatch(setError(null));
 
         if (!title) {
-            dispatch(setError('Title is required.'));
+            const errorMessage = 'Title is required.';
+            dispatch(setError(errorMessage));
+            toast.error(errorMessage);
             return;
         }
 
@@ -92,10 +95,15 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onTaskAdde
                 throw new Error(errData.error || 'Failed to create task');
             }
 
+            const taskType = parentId ? 'Subtask' : 'Task';
+            toast.success(`${taskType} "${title}" created successfully!`);
+            
             onTaskAdded();
             handleClose();
         } catch (e: unknown) {
-            dispatch(setError(e instanceof Error ? e.message : String(e)));
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            dispatch(setError(errorMessage));
+            toast.error(`Failed to create task: ${errorMessage}`);
         }
     };
 

@@ -22,14 +22,15 @@ interface TaskCardProps {
     task: Task
     onEdit: (task: Task) => void
     onDelete: (taskId: number) => void
+    isSubtask?: boolean
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, isSubtask = false }) => {
     return (
-        <Card>
+        <Card className={isSubtask ? "bg-muted/50 shadow-sm" : ""}>
             <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 pb-2">
                 <div className="space-y-1">
-                    <CardTitle>{task.title}</CardTitle>
+                    <CardTitle className={isSubtask ? "text-base font-medium" : ""}>{task.title}</CardTitle>
                     {task.description && <CardDescription>{task.description}</CardDescription>}
                 </div>
                 <DropdownMenu>
@@ -48,7 +49,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
                 <CardContent>
                     <div className="space-y-4 pl-4 border-l-2">
                         {task.subtasks.map(subtask => (
-                            <TaskCard key={subtask.id} task={subtask} onEdit={onEdit} onDelete={onDelete} />
+                            <TaskCard key={subtask.id} task={subtask} onEdit={onEdit} onDelete={onDelete} isSubtask />
                         ))}
                     </div>
                 </CardContent>

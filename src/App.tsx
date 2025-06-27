@@ -154,15 +154,21 @@ function App() {
             <div key={status} className="bg-muted rounded-lg p-4">
               <h2 className="text-xl font-semibold mb-4 capitalize">{status.replace('_', ' ').toLowerCase()}</h2>
               <div className="space-y-4">
-                {(tasksByStatus[status] || []).map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    searchQuery={searchQuery}
-                  />
-                ))}
+                {(tasksByStatus[status] || []).length > 0 ? (
+                  (tasksByStatus[status] || []).map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      searchQuery={searchQuery}
+                    />
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p className="text-sm">No tasks found</p>
+                  </div>
+                )}
               </div>
             </div>
           ))}

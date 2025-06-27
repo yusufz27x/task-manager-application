@@ -1,14 +1,26 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from './store';
 import { deleteTask, setTasks, setLoading, setError } from './store/slices/taskSlice';
 import type { Task, TaskStatus } from './store/slices/taskSlice';
 import TaskCard from './components/TaskCard';
+import { Button } from './components/ui/button';
+import { MoonIcon, SunIcon } from 'lucide-react';
 
 const statusColumns: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
 
 function App() {
   const dispatch = useAppDispatch();
   const { tasks, loading, error } = useAppSelector((state) => state.tasks);
+  const [theme, setTheme] = useState<'light' | 'dark'>(
+    () => (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
+  );
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -82,6 +94,17 @@ function App() {
           ))}
         </div>
       )}
+      <div className="fixed bottom-4 right-4">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        >
+          <SunIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <MoonIcon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </div>
     </div>
   );
 }

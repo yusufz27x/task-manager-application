@@ -9,7 +9,7 @@ import { Input } from './components/ui/input';
 import { LoadingSpinner } from './components/ui/spinner';
 import AddTaskModal from './components/AddTaskModal';
 import TaskEditModal from './components/TaskEditModal';
-import { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 
 const statusColumns: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
 
@@ -44,7 +44,7 @@ const filterTasksWithSubtasks = (allTasks: Task[], query: string): Task[] => {
 
 function App() {
   const dispatch = useAppDispatch();
-  const { tasks, loading, error } = useAppSelector((state) => state.tasks);
+  const { tasks, loading } = useAppSelector((state) => state.tasks);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [isEditTaskModalOpen, setIsEditTaskModalOpen] = useState(false);
@@ -90,7 +90,9 @@ function App() {
       const data: Task[] = await response.json();
       dispatch(setTasks(data));
     } catch (e: unknown) {
-      dispatch(setError(e instanceof Error ? e.message : String(e)));
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      dispatch(setError(errorMessage));
+      toast.error(`Failed to fetch tasks: ${errorMessage}`);
     } finally {
       dispatch(setLoading(false));
     }
@@ -149,8 +151,7 @@ function App() {
         </div>
       </div>
       {loading && <LoadingSpinner message="Fetching tasks..." />}
-      {error && <p className="text-red-500">Error: {error}</p>}
-      {!loading && !error && (
+      {!loading && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
           {statusColumns.map((status) => (
             <div key={status} className="bg-muted rounded-lg p-4">

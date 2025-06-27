@@ -5,12 +5,14 @@ import type { Task, TaskStatus } from './store/slices/taskSlice';
 import TaskCard from './components/TaskCard';
 import { Button } from './components/ui/button';
 import { MoonIcon, SunIcon } from 'lucide-react';
+import { Input } from './components/ui/input';
 
 const statusColumns: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
 
 function App() {
   const dispatch = useAppDispatch();
   const { tasks, loading, error } = useAppSelector((state) => state.tasks);
+  const [searchQuery, setSearchQuery] = useState('');
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme === 'light' || storedTheme === 'dark') {
@@ -81,7 +83,14 @@ function App() {
     }
   };
 
-  const tasksByStatus = tasks.reduce((acc, task) => {
+  const filteredTasks = tasks.filter(
+    (task) =>
+      task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (task.description &&
+        task.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const tasksByStatus = filteredTasks.reduce((acc, task) => {
     if (!task.parentId) { // Only group parent tasks into columns
       (acc[task.status] = acc[task.status] || []).push(task);
     }
@@ -92,6 +101,13 @@ function App() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <h1 className="text-3xl font-bold mb-6">Task Manager</h1>
+      <div className="mb-6 max-w-sm">
+        <Input
+          placeholder="Search by title or description..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">Error: {error}</p>}
       {!loading && !error && (

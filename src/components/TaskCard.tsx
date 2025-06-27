@@ -4,26 +4,26 @@ import type { Task } from '../store/slices/taskSlice'
 import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
 } from "../components/ui/card"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu"
 
 interface TaskCardProps {
-  task: Task
-  onEdit: (task: Task) => void
-  onDelete: (taskId: number) => void
-  isSubtask?: boolean
-  searchQuery?: string
+    task: Task
+    onEdit: (task: Task) => void
+    onDelete: (taskId: number) => void
+    isSubtask?: boolean
+    searchQuery?: string
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, isSubtask = false, searchQuery = '' }) => {
@@ -78,11 +78,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, isSubtask =
                         let Icon = null;
 
                         if (diffDays < 0) {
-                            color = "text-orange-500";
-                            Icon = <AlertTriangle className="h-4 w-4" />;
-                        } else if (diffDays <= 3) {
                             color = "text-red-500";
                             Icon = <AlertCircle className="h-4 w-4" />;
+                        } else if (diffDays <= 3) {
+                            color = "text-orange-500";
+                            Icon = <AlertTriangle className="h-4 w-4" />;
                         }
 
                         return (

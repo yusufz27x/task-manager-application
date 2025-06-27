@@ -7,6 +7,7 @@ import { Button } from './components/ui/button';
 import { MoonIcon, SunIcon, SearchIcon, PlusIcon } from 'lucide-react';
 import { Input } from './components/ui/input';
 import AddTaskModal from './components/AddTaskModal';
+import TaskEditModal from './components/TaskEditModal';
 
 const statusColumns: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
 
@@ -44,6 +45,8 @@ function App() {
   const { tasks, loading, error } = useAppSelector((state) => state.tasks);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
+  const [isEditTaskModalOpen, setIsEditTaskModalOpen] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme === 'light' || storedTheme === 'dark') {
@@ -96,8 +99,8 @@ function App() {
   }, [fetchTasks]);
 
   const handleEdit = (task: Task) => {
-    // TODO: Implement task editing functionality
-    console.log('Edit task:', task);
+    setTaskToEdit(task);
+    setIsEditTaskModalOpen(true);
   };
 
   const handleDelete = async (taskId: number) => {
@@ -169,6 +172,16 @@ function App() {
         isOpen={isAddTaskModalOpen}
         onClose={() => setIsAddTaskModalOpen(false)}
         onTaskAdded={fetchTasks}
+        tasks={tasks}
+      />
+      <TaskEditModal
+        isOpen={isEditTaskModalOpen}
+        onClose={() => {
+          setIsEditTaskModalOpen(false);
+          setTaskToEdit(null);
+        }}
+        onTaskUpdated={fetchTasks}
+        task={taskToEdit}
         tasks={tasks}
       />
       <div className="fixed bottom-4 right-4">

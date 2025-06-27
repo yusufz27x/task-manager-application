@@ -130,7 +130,7 @@ function App() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-        <h1 className="text-3xl font-bold">Task Manager</h1>
+        <h1 className="text-3xl font-bold">Task Management App</h1>
         <div className="flex items-center gap-4">
           <div className="relative w-full md:max-w-sm">
             <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

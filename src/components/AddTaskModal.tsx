@@ -37,12 +37,14 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onTaskAdde
     const [status, setStatus] = useState<TaskStatus>('TODO');
     const [dueDate, setDueDate] = useState<Date | undefined>();
     const [isCalendarOpen, setCalendarOpen] = useState(false);
+    const [parentId, setParentId] = useState<number | null>(null);
 
     const handleClose = () => {
         setTitle('');
         setDescription('');
         setStatus('TODO');
         setDueDate(undefined);
+        setParentId(null);
         dispatch(setError(null));
         onClose();
     };
@@ -56,8 +58,18 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onTaskAdde
             return;
         }
 
-        const tasksInStatus = tasks.filter(t => t.status === status && !t.parentId).sort((a, b) => a.order - b.order);
-        const newOrder = (tasksInStatus[tasksInStatus.length - 1]?.order || 0) + 1;
+        // Calculate order based on whether this is a subtask or not
+        let newOrder;
+        if (parentId) {
+            // For subtasks, find the highest order among siblings
+            const parentTask = tasks.find(t => t.id === parentId);
+            const siblings = parentTask?.subtasks || [];
+            newOrder = (siblings[siblings.length - 1]?.order || 0) + 1;
+        } else {
+            // For parent tasks, find the highest order among tasks with the same status
+            const tasksInStatus = tasks.filter(t => t.status === status && !t.parentId).sort((a, b) => a.order - b.order);
+            newOrder = (tasksInStatus[tasksInStatus.length - 1]?.order || 0) + 1;
+        }
 
         try {
             const response = await fetch('/api/tasks', {
@@ -71,6 +83,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onTaskAdde
                     status,
                     dueDate: dueDate?.toISOString(),
                     order: newOrder,
+                    parentId,
                 }),
             });
 
@@ -162,6 +175,27 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onTaskAdde
                                 />
                             </PopoverContent>
                         </Popover>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="parent-task" className="text-right">
+                            Parent Task
+                        </Label>
+                        <Select onValueChange={(value) => setParentId(value === "none" ? null : Number(value))} value={parentId ? String(parentId) : "none"}>
+                            <SelectTrigger className="col-span-3">
+                                <SelectValue placeholder="Select parent task (optional)" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">No parent (standalone task)</SelectItem>
+                                {tasks
+                                    .filter(task => !task.parentId) // Only show parent tasks, not subtasks
+                                    .map(task => (
+                                        <SelectItem key={task.id} value={String(task.id)}>
+                                            {task.title}
+                                        </SelectItem>
+                                    ))
+                                }
+                            </SelectContent>
+                        </Select>
                     </div>
                 </form>
                 {error && <p className="text-sm text-red-500">{error}</p>}

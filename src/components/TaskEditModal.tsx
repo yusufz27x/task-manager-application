@@ -95,7 +95,7 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ isOpen, onClose, onTaskUp
 
             const updatedTask = await response.json();
             dispatch(updateTask({ id: task.id, updates: updatedTask }));
-            toast.success(`Task "${title}" updated successfully!`);
+            toast.success(`Task "${title}" updated successfully`);
             onTaskUpdated();
             handleClose();
         } catch (e: unknown) {

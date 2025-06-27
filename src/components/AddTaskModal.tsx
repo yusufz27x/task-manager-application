@@ -96,7 +96,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onTaskAdde
             }
 
             const taskType = parentId ? 'Subtask' : 'Task';
-            toast.success(`${taskType} "${title}" created successfully!`);
+            toast.success(`${taskType} "${title}" created successfully`);
             
             onTaskAdded();
             handleClose();

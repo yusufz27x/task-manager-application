@@ -1,5 +1,22 @@
 import React from 'react'
+import { MoreHorizontal } from "lucide-react"
 import type { Task } from '../store/slices/taskSlice'
+import { Badge } from "../components/ui/badge"
+import { Button } from "../components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu"
 
 interface TaskCardProps {
     task: Task
@@ -9,25 +26,40 @@ interface TaskCardProps {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
     return (
-        <div style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '16px', marginBottom: '16px', backgroundColor: '#f9f9f9' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ margin: 0 }}>{task.title}</h3>
-                <div>
-                    <button onClick={() => onEdit(task)} style={{ marginRight: '8px' }}>Edit</button>
-                    <button onClick={() => onDelete(task.id)}>Delete</button>
+        <Card>
+            <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 pb-2">
+                <div className="space-y-1">
+                    <CardTitle>{task.title}</CardTitle>
+                    {task.description && <CardDescription>{task.description}</CardDescription>}
                 </div>
-            </div>
-            {task.description && <p style={{ marginTop: '8px' }}>{task.description}</p>}
-            <p style={{ marginTop: '8px', fontSize: '0.9em', color: '#555' }}>Status: {task.status}</p>
-            {task.dueDate && <p style={{ fontSize: '0.9em', color: '#555' }}>Due: {new Date(task.dueDate).toLocaleDateString()}</p>}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => onEdit(task)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onDelete(task.id)} className="text-red-500 focus:text-red-500">Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </CardHeader>
             {task.subtasks && task.subtasks.length > 0 && (
-                <div style={{ marginTop: '16px', paddingLeft: '16px', borderLeft: '2px solid #eee' }}>
-                    {task.subtasks.map(subtask => (
-                        <TaskCard key={subtask.id} task={subtask} onEdit={onEdit} onDelete={onDelete} />
-                    ))}
-                </div>
+                <CardContent>
+                    <div className="space-y-4 pl-4 border-l-2">
+                        {task.subtasks.map(subtask => (
+                            <TaskCard key={subtask.id} task={subtask} onEdit={onEdit} onDelete={onDelete} />
+                        ))}
+                    </div>
+                </CardContent>
             )}
-        </div>
+            <CardFooter>
+                <div className="flex justify-between w-full items-center text-sm text-muted-foreground">
+                    {task.dueDate && <p>Due: {new Date(task.dueDate).toLocaleDateString()}</p>}
+                    <Badge variant="outline" className="capitalize">{task.status.replace(/_/g, ' ').toLowerCase()}</Badge>
+                </div>
+            </CardFooter>
+        </Card>
     )
 }
 

@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from './store';
 import { deleteTask, setTasks, setLoading, setError } from './store/slices/taskSlice';
 import type { Task, TaskStatus } from './store/slices/taskSlice';
 import TaskCard from './components/TaskCard';
 import { Button } from './components/ui/button';
-import { MoonIcon, SunIcon, SearchIcon } from 'lucide-react';
+import { MoonIcon, SunIcon, SearchIcon, PlusIcon } from 'lucide-react';
 import { Input } from './components/ui/input';
+import AddTaskModal from './components/AddTaskModal';
 
 const statusColumns: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
 
@@ -42,6 +43,7 @@ function App() {
   const dispatch = useAppDispatch();
   const { tasks, loading, error } = useAppSelector((state) => state.tasks);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme === 'light' || storedTheme === 'dark') {
@@ -72,26 +74,26 @@ function App() {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      dispatch(setLoading(true));
-      dispatch(setError(null));
-      try {
-        const response = await fetch('/api/tasks');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: Task[] = await response.json();
-        dispatch(setTasks(data));
-      } catch (e: unknown) {
-        dispatch(setError(e instanceof Error ? e.message : String(e)));
-      } finally {
-        dispatch(setLoading(false));
+  const fetchTasks = useCallback(async () => {
+    dispatch(setLoading(true));
+    dispatch(setError(null));
+    try {
+      const response = await fetch('/api/tasks');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
-
-    fetchTasks();
+      const data: Task[] = await response.json();
+      dispatch(setTasks(data));
+    } catch (e: unknown) {
+      dispatch(setError(e instanceof Error ? e.message : String(e)));
+    } finally {
+      dispatch(setLoading(false));
+    }
   }, [dispatch]);
+
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
 
   const handleEdit = (task: Task) => {
     // TODO: Implement task editing functionality
@@ -126,14 +128,19 @@ function App() {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <h1 className="text-3xl font-bold">Task Manager</h1>
-        <div className="relative w-full md:max-w-sm">
-          <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search by title or description..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
+        <div className="flex items-center gap-4">
+          <div className="relative w-full md:max-w-sm">
+            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search by title or description..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Button onClick={() => setIsAddTaskModalOpen(true)}>
+            <PlusIcon className="mr-2 h-4 w-4" /> Add Task
+          </Button>
         </div>
       </div>
       {loading && <p>Loading...</p>}
@@ -158,6 +165,12 @@ function App() {
           ))}
         </div>
       )}
+      <AddTaskModal
+        isOpen={isAddTaskModalOpen}
+        onClose={() => setIsAddTaskModalOpen(false)}
+        onTaskAdded={fetchTasks}
+        tasks={tasks}
+      />
       <div className="fixed bottom-4 right-4">
         <Button
           variant="outline"

@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from './store';
 import { deleteTask, setTasks, setLoading, setError } from './store/slices/taskSlice';
-import type { Task } from './store/slices/taskSlice';
+import type { Task, TaskStatus } from './store/slices/taskSlice';
 import TaskCard from './components/TaskCard';
+
+const statusColumns: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
 
 function App() {
   const dispatch = useAppDispatch();
@@ -48,24 +50,36 @@ function App() {
     }
   };
 
+  const tasksByStatus = tasks.reduce((acc, task) => {
+    if (!task.parentId) { // Only group parent tasks into columns
+      (acc[task.status] = acc[task.status] || []).push(task);
+    }
+    return acc;
+  }, {} as Record<TaskStatus, Task[]>);
+
+
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Task Manager</h1>
+    <div className="min-h-screen bg-background p-4 md:p-8">
+      <h1 className="text-3xl font-bold mb-6">Task Manager</h1>
       {loading && <p>Loading...</p>}
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      {error && <p className="text-red-500">Error: {error}</p>}
       {!loading && !error && (
-        <div>
-          {tasks
-            // Do not display subtasks twice
-            .filter((task) => !task.parentId)
-            .map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+          {statusColumns.map((status) => (
+            <div key={status} className="bg-muted rounded-lg p-4">
+              <h2 className="text-xl font-semibold mb-4 capitalize">{status.replace('_', ' ').toLowerCase()}</h2>
+              <div className="space-y-4">
+                {(tasksByStatus[status] || []).map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

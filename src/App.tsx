@@ -124,13 +124,15 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
-      <h1 className="text-3xl font-bold mb-6">Task Manager</h1>
-      <div className="mb-6 max-w-sm">
-        <Input
-          placeholder="Search by title or description..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold">Task Manager</h1>
+        <div className="max-w-sm">
+          <Input
+            placeholder="Search by title or description..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">Error: {error}</p>}
